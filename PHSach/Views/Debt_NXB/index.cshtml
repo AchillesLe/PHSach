@@ -50,7 +50,7 @@
                             <td>@Html.DisplayFor(c => item.NXB_id)</td>
                             <td>@Html.DisplayFor(c => item.NXB.NXB_name)</td>
                             <td>@Html.DisplayFor(c => item.debt)</td>
-                            <td>@item.update_date.ToString("dd/MM/yyyy hh:mm:ss tt")</td>
+                            <td>@item.update_date.ToString("dd/MM/yyyy HH:mm:ss")</td>
                         </tr>
                     }
                 </tbody>
@@ -92,7 +92,7 @@
                             }
                             else {
                                 $.each(newdata, function (i, item) {
-                                    $('.nxb-body').append('<tr><td>' + item.id + '</td><td>' + item.name + '</td><td>' + item.debt + '</td><td>' + new Date(item.updatedate).toString("dd/MM/yyyy hh:mm:ss tt") + '</td><tr>');
+                                    $('.nxb-body').append('<tr><td>' + item.id + '</td><td>' + item.name + '</td><td>' + item.debt + '</td><td>' + new Date(item.updatedate).toString("dd/MM/yyyy HH:mm:ss") + '</td><tr>');
                                 });
                             }
                                     

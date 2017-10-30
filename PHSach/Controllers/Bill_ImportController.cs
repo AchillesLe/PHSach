@@ -116,6 +116,11 @@ namespace PHSach.Controllers
                     }
                     if (check)
                     {
+                        if (chitiet["sach"] == null)
+                        {
+                            ViewBag.loi = "Không có sách của NXB này";
+                            goto baoloi;
+                        }
                         var sach = db.Books.Find(Int32.Parse(chitiet["sach"].ToString()));
                         if (sach == null)
                         {
@@ -144,6 +149,11 @@ namespace PHSach.Controllers
             {
                 if (ModelState.IsValid)
                 {
+                    if (((List<Detail_Bill_Import>)Session["ctphieunhap"]).Count == 0)
+                    {
+                        ViewBag.loi = "Không được để phiếu trống";
+                        goto baoloi;
+                    }
                     double tongTien = 0;
                     double? temptongtien = 0;
                     Bill_Import test = new Bill_Import();
@@ -207,7 +217,7 @@ namespace PHSach.Controllers
                     return RedirectToAction("Create");
                 }
             }
-
+            baoloi:
                 return View();
         }
 

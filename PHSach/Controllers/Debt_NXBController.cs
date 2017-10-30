@@ -70,9 +70,15 @@ namespace PHSach.Controllers
                 id = int.Parse(keyword);
             }
             DateTime newdate = DateTime.Parse(date);
-            var debt_nxb = db.Debt_NXB.Where(a => (a.NXB_id == id || a.NXB.NXB_name.ToLower().Contains(keyword.ToLower())) && a.update_date <= newdate)
-                .OrderByDescending(a => a.update_date).Select(a => new { id = a.NXB_id, name = a.NXB.NXB_name, debt = a.debt, updatedate = a.update_date }).ToList();
-            if (debt_nxb != null)
+            newdate = new DateTime(newdate.Year, newdate.Month, newdate.Day, 23, 59, 59);
+            var debt_nxb = (from c in (from a in db.Debt_NXB
+                                       where (a.NXB_id == id || a.NXB.NXB_name.ToLower().Contains(keyword.ToLower())) && a.update_date <= newdate
+                                       group a by a.NXB_id into gr
+                                       select new { id = gr.Key, update = gr.Max(x => x.update_date) })
+                            from d in db.Debt_NXB
+                            where d.NXB_id == c.id && d.update_date == c.update
+                            select new { id = d.NXB_id, name = d.NXB.NXB_name, debt = d.debt, updatedate = d.update_date }).ToList();
+            if (debt_nxb.Count > 0)
             {
                 var list = JsonConvert.SerializeObject(debt_nxb,
                   Formatting.None,

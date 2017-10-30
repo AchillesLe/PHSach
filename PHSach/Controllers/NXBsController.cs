@@ -52,7 +52,7 @@ namespace PHSach.Controllers
             {
                 db.NXBs.Add(nXB);
                 db.SaveChanges();
-                //return RedirectToAction("Index");
+                return RedirectToAction("Create");
             }
 
             return View(nXB);

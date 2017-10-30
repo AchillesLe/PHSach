@@ -13,14 +13,15 @@ namespace PHSach.Controllers
     public class Inventory_BookController : Controller
     {
         private PhatHanhSachEntities db = new PhatHanhSachEntities();
-      
+
         public ActionResult Index()
         {
             var books = from f in (from a in (from b in db.Inventory_Book.Include(b => b.Book) group b by b.Book_id into gr select new { book_id = gr.Key, updated_date = gr.Max(x => x.UpdatedDate) })
                                    from d in db.Inventory_Book
                                    orderby d.UpdatedDate descending
                                    where a.book_id == d.Book_id && a.updated_date == d.UpdatedDate
-                                   select d ).Include(f => f.Book) select f;
+                                   select d).Include(f => f.Book)
+                        select f;
 
             ViewBag.listbook = books.ToList();
             return View();
@@ -34,14 +35,14 @@ namespace PHSach.Controllers
             {
                 int id = int.Parse(masach);
                 DateTime date = DateTime.Parse(choosedate);
-                date = new DateTime(date.Year, date.Month, date.Day, 23, 0, 0);
+                date = new DateTime(date.Year, date.Month, date.Day, 23, 59, 59);
                 var inventory_Book = db.Inventory_Book.Include(c => c.Book)
                     .Where(c => c.Book_id == id && c.UpdatedDate <= date)
                     .OrderByDescending(c => c.UpdatedDate)
                     .Select(c => c).FirstOrDefault();
                 if (inventory_Book != null)
                 {
-                    return Json(new { id = inventory_Book.Book_id, bookname = inventory_Book.Book.Book_name, quantity = inventory_Book.Quantity, updatedate = (inventory_Book.UpdatedDate)?.ToString("dd / MM / yyyy hh:mm:ss tt") });
+                    return Json(new { id = inventory_Book.Book_id, bookname = inventory_Book.Book.Book_name, quantity = inventory_Book.Quantity, updatedate = (inventory_Book.UpdatedDate)?.ToString("dd / MM / yyyy HH:mm:ss") });
                 }
             }
             catch

@@ -152,6 +152,11 @@ namespace PHSach.Controllers
                     }
                     if (check)
                     {
+                        if (chitiet["sach"] == null)
+                        {
+                            ViewBag.loi = "Không tồn tại sách để báo cáo";
+                            goto baoloi;
+                        }
                         var sach = db.Books.Find(Int32.Parse(chitiet["sach"].ToString()));
                         int soluong = Int32.Parse(chitiet["soluong"].ToString());
                         Report_Agency idagency = (Report_Agency)Session["PhieuBaoCao"];                 
@@ -199,6 +204,11 @@ namespace PHSach.Controllers
             {
                 if (ModelState.IsValid)
                 {
+                    if (((List<Detail_Report_Agency>)Session["ctphieubaocao"]).Count == 0)
+                    {
+                        ViewBag.loi = "Không được để phiếu trống";
+                        goto baoloi;
+                    }
                     double tongTien = 0;
                     double? temptongtien = 0;
                     Report_Agency test = new Report_Agency();

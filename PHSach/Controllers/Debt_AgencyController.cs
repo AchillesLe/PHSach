@@ -53,9 +53,16 @@ namespace PHSach.Controllers
                 id = int.Parse(keyword);
             }
             DateTime newdate = DateTime.Parse(date);
-            var debt_agency = db.Debt_Agency.Where(a => (a.Agency_id == id || a.Agency.Agency_name.ToLower().Contains(keyword.ToLower())) && a.update_date <= newdate)
-                .OrderByDescending(a => a.update_date).Select(a => new { id = a.Agency_id, name = a.Agency.Agency_name, debt = a.debt, updatedate = a.update_date }).ToList();
-            if (debt_agency != null)
+            newdate = new DateTime(newdate.Year, newdate.Month, newdate.Day, 23, 59, 59);
+            var debt_agency = (from c in (from a in db.Debt_Agency
+                                          where (a.Agency_id == id || a.Agency.Agency_name.ToLower().Contains(keyword.ToLower())) && a.update_date <= newdate
+                                          group a by a.Agency_id into gr
+                                          select new { id = gr.Key, update = gr.Max(x => x.update_date) })
+                               from d in db.Debt_Agency
+                               where d.Agency_id == c.id && d.update_date == c.update
+                               select new { id = d.Agency_id, name = d.Agency.Agency_name, debt = d.debt, updatedate = d.update_date }).ToList();
+
+            if (debt_agency.Count > 0)
             {
                 var list = JsonConvert.SerializeObject(debt_agency,
                   Formatting.None,

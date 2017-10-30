@@ -20,10 +20,10 @@ namespace PHSach.Controllers
         public JsonResult calculateByday(string startdate, string finishdate)
         {
 
-            DateTime datestart = DateTime.Parse(startdate );
-            datestart = new DateTime(datestart.Year, datestart.Month, datestart.Day, 6, 0, 0);
+            DateTime datestart = DateTime.Parse(startdate);
+            datestart = new DateTime(datestart.Year, datestart.Month, datestart.Day, 1, 0, 0);
             DateTime datefinish = DateTime.Parse(finishdate);
-            datefinish = new DateTime(datefinish.Year, datefinish.Month, datefinish.Day, 6, 0, 0);
+            datefinish = new DateTime(datefinish.Year, datefinish.Month, datefinish.Day, 1, 0, 0);
 
 
             var find_id = from D in (from A in db.Report_Agency
@@ -32,14 +32,16 @@ namespace PHSach.Controllers
                                      where B.Report_id == A.Report_id
                                      group B by B.Book_id into grp
                                      select new { Book_id = grp.Key, quantity = grp.Sum(x => x.quantity) })
-                          from C in db.Books where C.Book_id == D.Book_id select new { C.Book_id, C.Cost_Export, C.Cost_Import, D.quantity };
+                          from C in db.Books
+                          where C.Book_id == D.Book_id
+                          select new { C.Book_id, C.Cost_Export, C.Cost_Import, D.quantity };
             double? total = 0;
-            foreach(var item in find_id)
+            foreach (var item in find_id)
             {
                 total += (item.Cost_Export - item.Cost_Import) * item.quantity;
             }
 
-            return Json( total, JsonRequestBehavior.AllowGet);
+            return Json(total, JsonRequestBehavior.AllowGet);
         }
     }
 }

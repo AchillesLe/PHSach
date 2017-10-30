@@ -103,10 +103,12 @@ namespace PHSach.Controllers
                     }
                     if (check)
                     {
+                        if (chitiet["sach"] == null)
+                        {
+                            ViewBag.loi = "Không tồn tại sách để xuất";
+                            goto baoloi;
+                        }
                         var sach = db.Books.Find(Int32.Parse(chitiet["sach"].ToString()));
-                        //kiểm tra danh sách chi tiết null
-                        //if ((List<Detail_Bill_Export>)Session["ctphieuxuat"] == null)
-                        //{
                         int soluong = Int32.Parse(chitiet["soluong"].ToString());
                         Inventory_Book tonkho1 = db.Inventory_Book.OrderByDescending(m => m.id).FirstOrDefault(m => m.Book_id == (int)sach.Book_id);
 
@@ -169,6 +171,11 @@ namespace PHSach.Controllers
             {
                 if (ModelState.IsValid)
                 {
+                    if (((List<Detail_Bill_Export>)Session["ctphieuxuat"]).Count == 0)
+                    {
+                        ViewBag.loi = "Không được để phiếu trống";
+                        goto baoloi;
+                    }
                     double tongTien = 0;
                     double? temptongtien = 0;
                     Bill_Export test = new Bill_Export();
