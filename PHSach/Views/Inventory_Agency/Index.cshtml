@@ -1,0 +1,51 @@
+﻿@model IEnumerable<PHSach.Models.Inventory_Agency>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Index</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.deliver_quantity)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.repay_quantity)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Agency.Agency_name)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Book.Book_name)
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.deliver_quantity)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.repay_quantity)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Agency.Agency_name)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Book.Book_name)
+        </td>
+        <td>
+            @Html.ActionLink("Edit", "Edit", new { id=item.id }) |
+            @Html.ActionLink("Details", "Details", new { id=item.id }) |
+            @Html.ActionLink("Delete", "Delete", new { id=item.id })
+        </td>
+    </tr>
+}
+
+</table>

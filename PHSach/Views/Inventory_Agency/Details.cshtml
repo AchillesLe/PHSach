@@ -1,0 +1,50 @@
+﻿@model PHSach.Models.Inventory_Agency
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>Inventory_Agency</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.deliver_quantity)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.deliver_quantity)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.repay_quantity)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.repay_quantity)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Agency.Agency_name)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Agency.Agency_name)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Book.Book_name)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Book.Book_name)
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.id }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>
