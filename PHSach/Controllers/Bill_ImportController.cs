@@ -129,7 +129,7 @@ namespace PHSach.Controllers
                         else
                         {
                             Detail_Bill_Import ctpn = new Detail_Bill_Import();
-                            ctpn.Bill_Import_id = (db.Bill_Import.Max(u => (int?)u.Bill_Import_id))!=null?(db.Bill_Import.Max(u => u.Bill_Import_id)):0 + 1;// db.Bill_Import.Count() + 1;
+                            ctpn.Bill_Import_id = (db.Bill_Import.Max(u => (int?)u.Bill_Import_id)!=null?db.Bill_Import.Max(u => u.Bill_Import_id):0 ) + 1;// db.Bill_Import.Count() + 1;
                             ctpn.Book_id = Int32.Parse(chitiet["sach"].ToString());
                             ctpn.Quantity = Int32.Parse(chitiet["soluong"].ToString());
                             ctpn.Cost = db.Books.Find(ctpn.Book_id).Cost_Import;
