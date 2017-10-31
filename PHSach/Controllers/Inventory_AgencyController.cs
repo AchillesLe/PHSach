@@ -7,6 +7,7 @@ using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using PHSach.Models;
+using Microsoft.Ajax.Utilities;
 
 namespace PHSach.Controllers
 {
@@ -14,116 +15,55 @@ namespace PHSach.Controllers
     {
         private PhatHanhSachEntities db = new PhatHanhSachEntities();
 
-        // GET: Inventory_Agency
         public ActionResult Index()
         {
-            var inventory_Agency = db.Inventory_Agency.Include(i => i.Agency).Include(i => i.Book);
-            return View(inventory_Agency.ToList());
-        }
-
-        // GET: Inventory_Agency/Details/5
-        public ActionResult Details(int? id)
-        {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            Inventory_Agency inventory_Agency = db.Inventory_Agency.Find(id);
-            if (inventory_Agency == null)
-            {
-                return HttpNotFound();
-            }
-            return View(inventory_Agency);
-        }
-
-        // GET: Inventory_Agency/Create
-        public ActionResult Create()
-        {
-            ViewBag.Agency_id = new SelectList(db.Agencies, "Agency_id", "Agency_name");
-            ViewBag.Book_id = new SelectList(db.Books, "Book_id", "Book_name");
+            var Agency_books = from f in (from a in (from b in db.Inventory_Agency.Include(b => b.Book) group b by new { b.Agency_id , b.Book_id } into gr select new { Agency_id = gr.Key.Agency_id,book_id =gr.Key.Book_id , updated_date = gr.Max(x => x.UpdatedDate) })
+                                   from d in db.Inventory_Agency
+                                   orderby d.Agency_id ascending
+                                   where a.Agency_id == d.Agency_id && a.book_id == d.Book_id && a.updated_date == d.UpdatedDate
+                                   select d)
+                               select f;
+            var agency = db.Agencies.Select(x => new { x.Agency_id, x.Agency_name }).ToDictionary(x => x.Agency_id, x => x.Agency_name);
+            ViewBag.listbook = Agency_books.ToList();
+            ViewBag.agency = agency;
             return View();
         }
-
-        // POST: Inventory_Agency/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // Bảo - 20/10/2017
+        // Bảo 20/10/2017
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "id,Agency_id,Book_id,deliver_quantity,repay_quantity")] Inventory_Agency inventory_Agency)
+        public JsonResult HistoryAgency(string madaily,string masach, string choosedate)
         {
-            if (ModelState.IsValid)
+            try
             {
-                db.Inventory_Agency.Add(inventory_Agency);
-                db.SaveChanges();
-                return RedirectToAction("Index");
+                int id = int.Parse(masach);
+                int iddaily = int.Parse(madaily);
+                DateTime date = DateTime.Parse(choosedate);
+                date = new DateTime(date.Year, date.Month, date.Day, 23, 59, 59);
+                var inventory_book = db.Inventory_Agency
+                    .Where(c =>c.Agency_id==iddaily && c.Book_id == id && c.UpdatedDate <= date)
+                    .OrderByDescending(c => c.UpdatedDate)
+                    .Select(c => c).FirstOrDefault();
+                if (inventory_book != null)
+                {
+                    return Json(new { iddaily= inventory_book.Agency_id,id = inventory_book.Book_id, bookname = inventory_book.Book.Book_name, quantity = inventory_book.deliver_quantity- inventory_book.repay_quantity, updatedate = (inventory_book.UpdatedDate)?.ToString("dd / MM / yyyy HH:mm:ss") });
+                }
             }
-
-            ViewBag.Agency_id = new SelectList(db.Agencies, "Agency_id", "Agency_name", inventory_Agency.Agency_id);
-            ViewBag.Book_id = new SelectList(db.Books, "Book_id", "Book_name", inventory_Agency.Book_id);
-            return View(inventory_Agency);
+            catch
+            {
+                return Json(new { });
+            }
+            return Json(new { });
         }
-
-        // GET: Inventory_Agency/Edit/5
-        public ActionResult Edit(int? id)
+        [HttpGet]
+        public JsonResult listbookbyagency(string id)
         {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            Inventory_Agency inventory_Agency = db.Inventory_Agency.Find(id);
-            if (inventory_Agency == null)
-            {
-                return HttpNotFound();
-            }
-            ViewBag.Agency_id = new SelectList(db.Agencies, "Agency_id", "Agency_name", inventory_Agency.Agency_id);
-            ViewBag.Book_id = new SelectList(db.Books, "Book_id", "Book_name", inventory_Agency.Book_id);
-            return View(inventory_Agency);
+            int iddaily = int.Parse(id);
+            var listbook = (from a in db.Inventory_Agency.Include(a => a.Book) where a.Agency_id == iddaily select new {id= a.Book_id, name=a.Book.Book_name }).Distinct().ToList();
+            //Session["listbookid"] = listbook;
+            return Json(listbook, JsonRequestBehavior.AllowGet);
+            //return listbook;
         }
-
-        // POST: Inventory_Agency/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "id,Agency_id,Book_id,deliver_quantity,repay_quantity")] Inventory_Agency inventory_Agency)
-        {
-            if (ModelState.IsValid)
-            {
-                db.Entry(inventory_Agency).State = EntityState.Modified;
-                db.SaveChanges();
-                return RedirectToAction("Index");
-            }
-            ViewBag.Agency_id = new SelectList(db.Agencies, "Agency_id", "Agency_name", inventory_Agency.Agency_id);
-            ViewBag.Book_id = new SelectList(db.Books, "Book_id", "Book_name", inventory_Agency.Book_id);
-            return View(inventory_Agency);
-        }
-
-        // GET: Inventory_Agency/Delete/5
-        public ActionResult Delete(int? id)
-        {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            Inventory_Agency inventory_Agency = db.Inventory_Agency.Find(id);
-            if (inventory_Agency == null)
-            {
-                return HttpNotFound();
-            }
-            return View(inventory_Agency);
-        }
-
-        // POST: Inventory_Agency/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public ActionResult DeleteConfirmed(int id)
-        {
-            Inventory_Agency inventory_Agency = db.Inventory_Agency.Find(id);
-            db.Inventory_Agency.Remove(inventory_Agency);
-            db.SaveChanges();
-            return RedirectToAction("Index");
-        }
-
+        // Bảo 20/10/2017
         protected override void Dispose(bool disposing)
         {
             if (disposing)
