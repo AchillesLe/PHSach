@@ -82,11 +82,11 @@
                         type: "GET",
                         success: function (data) {
                             $('.agency-body > tr').remove();
-                            var newdata = $.parseJSON(data);
-                            if (newdata.length === 0) {
+                            if (!data.length) {
                                 $('.agency-body').append('<tr><td colspan="4">Không có dữ liệu hoặc tại thời điểm chọn đại lý chưa có nợ !</td></tr>');
-                            }
+                            }                       
                             else {
+                                var newdata = $.parseJSON(data);
                                 $.each(newdata, function (i, item) {
                                     $('.agency-body').append('<tr><td>' + item.id + '</td><td>' + item.name + '</td><td>' + item.debt + '</td><td>' + new Date(item.updatedate).toString("dd/MM/yyyy HH:mm:ss") + '</td><tr>');
                                 });

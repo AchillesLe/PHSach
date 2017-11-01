@@ -72,7 +72,7 @@ namespace PHSach.Controllers
                   });
                 return Json(list, JsonRequestBehavior.AllowGet);
             }
-            return Json(new { });
+            return Json(new {}, JsonRequestBehavior.AllowGet);
         }
 
         //Bảo - 10/20/2017

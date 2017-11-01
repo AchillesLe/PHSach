@@ -88,7 +88,7 @@ namespace PHSach.Controllers
                   });
                 return Json(list, JsonRequestBehavior.AllowGet);
             }
-            return Json(new { });
+            return Json(new { }, JsonRequestBehavior.AllowGet);
         }
         // end
         protected override void Dispose(bool disposing)
