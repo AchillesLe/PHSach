@@ -53,20 +53,28 @@
                 }
                 else
                 {
-                    $.ajax({
-                        url: "/Revenue/calculateByday",
-                        data: { startdate: startdate, finishdate: finishdate },
-                        type: "GET",
-                        datatype:"json",
-                        success: function (result) {
-                            if(result.length != 0){
-                                $('#total-revenue').val(result);
-                            }  
-                            else {
-                                $('#total-revenue').val('0');
+                    if (new Date(finishdate) < new Date(startdate))
+                    {
+                        alert("Ngày kết thúc phải lớn hơn ngày bắt đầu !");
+                    }
+                    else
+                    {
+                        $.ajax({
+                            url: "/Revenue/calculateByday",
+                            data: { startdate: startdate, finishdate: finishdate },
+                            type: "GET",
+                            datatype: "json",
+                            success: function (result) {
+                                if (result.length != 0) {
+                                    $('#total-revenue').val(result);
+                                }
+                                else {
+                                    $('#total-revenue').val('0');
+                                }
                             }
-                        }
-                    });
+                        });
+                    }
+                    
                 }
             }
         });
