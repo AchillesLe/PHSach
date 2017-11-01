@@ -59,22 +59,29 @@ namespace PHSach.Controllers
             ViewBag.Agency_id = null;
             Report_Agency report_Agency = new Report_Agency();
             report_Agency = (Report_Agency)Session["PhieuBaoCao"];
-            var lstAgencyid = (from c in db.Debt_Agency
+            /*var lstAgencyid = (from c in db.Debt_Agency
                                 where ! (from d in db.Debt_Agency
                                          where d.debt <= 0
                                          select d.Agency_id).Contains(c.Agency_id)
-                                select c.Agency_id).Distinct().ToList();
-            /*var lstAgencyid1 = (from b in db.Debt_Agency
-                             where b.debt > 0
-                             select b.Agency_id).Distinct().ToList();*/
-            List<Agency> lstAgency = new List<Agency>();
-            foreach (var item in lstAgencyid)
+                                select c.Agency_id).Distinct().ToList();*/
+            var lstAgencydb = db.Agencies;
+            List<Debt_Agency> lstDebtAgency = new List<Debt_Agency>();
+            foreach (Agency agen in lstAgencydb)
             {
-                Agency agen= db.Agencies.SingleOrDefault(n => n.Agency_id == item);
-                lstAgency.Add(agen);
+                Debt_Agency debtdaily = db.Debt_Agency.OrderByDescending(m => m.id).FirstOrDefault(m => (m.Agency_id == agen.Agency_id));
+                lstDebtAgency.Add(debtdaily);
             }
-            ViewBag.Agency_id = new SelectList(lstAgency, "Agency_id", "Agency_name");
-            //var phieunhap = (Bill_Import)TempData["PhieuNhap"];
+
+            List<Agency> lstAgencyUI = new List<Agency>();
+            foreach (Debt_Agency debtdailyitem in lstDebtAgency)
+            {
+                if (debtdailyitem.debt > 0)
+                {
+                    Agency agenSelect = db.Agencies.SingleOrDefault(n => n.Agency_id == debtdailyitem.Agency_id);
+                    lstAgencyUI.Add(agenSelect);
+                }
+            }
+            ViewBag.Agency_id = new SelectList(lstAgencyUI, "Agency_id", "Agency_name");
             return View();
         }
 
