@@ -181,21 +181,30 @@ namespace PHSach.Controllers
                                 goto baoloi;
                             }
                             else
-                            { 
-                                if (soluong <= (tonkhodaily.deliver_quantity - tonkhodaily.repay_quantity))
+                            {
+                                if(soluong > 0)
                                 {
-                                    Detail_Report_Agency ctpbc = new Detail_Report_Agency();
-                                    ctpbc.Report_id = ( db.Report_Agency.Max(u => (int?)u.Report_id) !=null ? db.Report_Agency.Max(u =>u.Report_id):0 ) + 1;
-                                    ctpbc.Book_id = Int32.Parse(chitiet["sach"].ToString());
-                                    ctpbc.quantity = Int32.Parse(chitiet["soluong"].ToString());
-                                    //((List<Int32>)Session["BookID"]).Add(ctpbc.Book_id);
-                                    ((List<Detail_Report_Agency>)Session["ctphieubaocao"]).Add(ctpbc);
+                                    if (soluong <= (tonkhodaily.deliver_quantity - tonkhodaily.repay_quantity))
+                                    {
+                                        Detail_Report_Agency ctpbc = new Detail_Report_Agency();
+                                        ctpbc.Report_id = (db.Report_Agency.Max(u => (int?)u.Report_id) != null ? db.Report_Agency.Max(u => u.Report_id) : 0) + 1;
+                                        ctpbc.Book_id = Int32.Parse(chitiet["sach"].ToString());
+                                        ctpbc.quantity = Int32.Parse(chitiet["soluong"].ToString());
+                                        //((List<Int32>)Session["BookID"]).Add(ctpbc.Book_id);
+                                        ((List<Detail_Report_Agency>)Session["ctphieubaocao"]).Add(ctpbc);
+                                    }
+                                    else
+                                    {
+                                        ViewBag.loi = "Vượt quá số lượng báo cáo";
+                                        goto baoloi;
+                                    }
                                 }
                                 else
                                 {
-                                    ViewBag.loi = "Vượt quá số lượng báo cáo";
+                                    ViewBag.loi = "Nhập số lượng lớn hơn 0";
                                     goto baoloi;
                                 }
+                                
                             }
 
                         }

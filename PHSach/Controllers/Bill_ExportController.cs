@@ -149,28 +149,38 @@ namespace PHSach.Controllers
                                     }
                                     else
                                     {
-                                        Detail_Bill_Export ctpx = new Detail_Bill_Export();
-                                        ctpx.Bill_Export_id = (db.Bill_Export.Max(u => (int?)u.Bill_Export_id) != null ? db.Bill_Export.Max(u => u.Bill_Export_id) : 0) + 1;// db.Bill_Export.Count() + 1;
-                                        ctpx.Book_id = Int32.Parse(chitiet["sach"].ToString());
-                                        ctpx.Quantity = Int32.Parse(chitiet["soluong"].ToString());
-                                        ctpx.Cost = double.Parse(db.Books.Find(ctpx.Book_id).Cost_Export.ToString());
-                                        ctpx.Total = ctpx.Quantity * ctpx.Cost;
-                                        //kiểm tra tổng tiền của phiếu có lớn hơn số nợ hay không
-                                        double checktien = 0;
-                                        foreach (var checktest in (List<Detail_Bill_Export>)Session["ctphieuxuat"])
+                                        //kiểm tra số lượng nhập vào phải lớn 0
+                                        if(soluong > 0)
                                         {
-                                            checktien += checktest.Total;
-                                        }
-                                        checktien += ctpx.Total;
-                                        if (test2 == null || (test2 != null && test2.debt > 0 && test2.debt >= checktien) || test2.debt == 0)
-                                        {
-                                            ((List<Detail_Bill_Export>)Session["ctphieuxuat"]).Add(ctpx);
+                                            Detail_Bill_Export ctpx = new Detail_Bill_Export();
+                                            ctpx.Bill_Export_id = (db.Bill_Export.Max(u => (int?)u.Bill_Export_id) != null ? db.Bill_Export.Max(u => u.Bill_Export_id) : 0) + 1;// db.Bill_Export.Count() + 1;
+                                            ctpx.Book_id = Int32.Parse(chitiet["sach"].ToString());
+                                            ctpx.Quantity = Int32.Parse(chitiet["soluong"].ToString());
+                                            ctpx.Cost = double.Parse(db.Books.Find(ctpx.Book_id).Cost_Export.ToString());
+                                            ctpx.Total = ctpx.Quantity * ctpx.Cost;
+                                            //kiểm tra tổng tiền của phiếu có lớn hơn số nợ hay không
+                                            double checktien = 0;
+                                            foreach (var checktest in (List<Detail_Bill_Export>)Session["ctphieuxuat"])
+                                            {
+                                                checktien += checktest.Total;
+                                            }
+                                            checktien += ctpx.Total;
+                                            if (test2 == null || (test2 != null && test2.debt > 0 && test2.debt >= checktien) || test2.debt == 0)
+                                            {
+                                                ((List<Detail_Bill_Export>)Session["ctphieuxuat"]).Add(ctpx);
+                                            }
+                                            else
+                                            {
+                                                ViewBag.loi = "Vượt quá số nợ cho phép, mức nợ hiện tại là: " + test2.debt;
+                                                goto baoloi;
+                                            }
                                         }
                                         else
                                         {
-                                            ViewBag.loi = "Vượt quá số nợ cho phép, mức nợ hiện tại là: " + test2.debt;
+                                            ViewBag.loi = "Nhập số lượng lớn hơn 0";
                                             goto baoloi;
                                         }
+                                        
                                     }
                                 }
                             }

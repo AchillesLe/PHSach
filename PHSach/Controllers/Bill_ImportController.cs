@@ -124,18 +124,30 @@ namespace PHSach.Controllers
                         var sach = db.Books.Find(Int32.Parse(chitiet["sach"].ToString()));
                         if (sach == null)
                         {
-                            ModelState.AddModelError("", "Mã sách không tồn tại");
+                            ViewBag.loi = "Mã sách không tồn tại";
+                            goto baoloi;
                         }
                         else
                         {
-                            Detail_Bill_Import ctpn = new Detail_Bill_Import();
-                            ctpn.Bill_Import_id = (db.Bill_Import.Max(u => (int?)u.Bill_Import_id)!=null?db.Bill_Import.Max(u => u.Bill_Import_id):0 ) + 1;// db.Bill_Import.Count() + 1;
-                            ctpn.Book_id = Int32.Parse(chitiet["sach"].ToString());
-                            ctpn.Quantity = Int32.Parse(chitiet["soluong"].ToString());
-                            ctpn.Cost = db.Books.Find(ctpn.Book_id).Cost_Import;
-                            ctpn.Total = ctpn.Quantity * ctpn.Cost;
-                            //((List<Int32>)Session["BookID"]).Add(ctpn.Book_id);
-                            ((List<Detail_Bill_Import>)Session["ctphieunhap"]).Add(ctpn);
+                            int soluong = Int32.Parse(chitiet["soluong"].ToString());
+                            if (soluong > 0)
+                            {
+                                Detail_Bill_Import ctpn = new Detail_Bill_Import();
+                                ctpn.Bill_Import_id = (db.Bill_Import.Max(u => (int?)u.Bill_Import_id) != null ? db.Bill_Import.Max(u => u.Bill_Import_id) : 0) + 1;// db.Bill_Import.Count() + 1;
+                                ctpn.Book_id = Int32.Parse(chitiet["sach"].ToString());
+                                ctpn.Quantity = soluong;
+                                ctpn.Cost = db.Books.Find(ctpn.Book_id).Cost_Import;
+                                ctpn.Total = ctpn.Quantity * ctpn.Cost;
+                                //((List<Int32>)Session["BookID"]).Add(ctpn.Book_id);
+                                ((List<Detail_Bill_Import>)Session["ctphieunhap"]).Add(ctpn);
+                            }
+                            else
+                            {
+                                ViewBag.loi = "Nhập số lượng lớn hơn 0";
+                                goto baoloi;
+                            }
+                           
+                            
                         }
                         return RedirectToAction("ThemChiTietPhieuNhap");
                     }
