@@ -21,7 +21,7 @@ namespace PHSach.Controllers
         {
 
             DateTime datestart = DateTime.Parse(startdate);
-            datestart = new DateTime(datestart.Year, datestart.Month, datestart.Day, 0, 0, 0);
+            datestart = new DateTime(datestart.Year, datestart.Month, datestart.Day, 1, 0,0);
             DateTime datefinish = DateTime.Parse(finishdate);
             datefinish = new DateTime(datefinish.Year, datefinish.Month, datefinish.Day, 23, 59, 59);
 
