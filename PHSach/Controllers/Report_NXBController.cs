@@ -27,6 +27,17 @@ namespace PHSach.Controllers
             Report_NXB report = db.Report_NXB.Find(id);
             report.status = 1;
             db.Entry(report).State = EntityState.Modified;
+            //test gap
+            Debt_NXB debt = new Debt_NXB();
+            Debt_NXB debt1 = db.Debt_NXB.OrderByDescending(m => m.id).FirstOrDefault(m => m.NXB_id == (int)report.NXB_id);
+            debt.update_date = DateTime.Now;
+            if (debt1 != null)
+            {
+                debt.NXB_id = (int)report.NXB_id;
+                debt.debt = (double)(debt1.debt - report.total);
+                debt.repay = Double.Parse(report.total.ToString());
+            }
+            db.Debt_NXB.Add(debt);
             db.SaveChanges();
             return RedirectToAction("Index");
         }
