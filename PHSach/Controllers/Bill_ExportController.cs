@@ -103,11 +103,16 @@ namespace PHSach.Controllers
                     }
                     if (check)
                     {
+                        //kiểm tra trong kho có sách đó hay không
                         if (chitiet["sach"] == null)
                         {
                             ViewBag.loi = "Không tồn tại sách để xuất";
                             goto baoloi;
                         }
+                        //khai báo để tìm nợ của đại lý đó
+                        Bill_Export test1 = (Bill_Export)Session["PhieuXuat"];
+                        Debt_Agency test2 = db.Debt_Agency.OrderByDescending(m => m.id).FirstOrDefault(m => m.Agency_id == (int)test1.Agency_id);
+                        //lấy số lượng nhâp từ form và lấy tồn kho của sách vừa nhập
                         var sach = db.Books.Find(Int32.Parse(chitiet["sach"].ToString()));
                         int soluong = Int32.Parse(chitiet["soluong"].ToString());
                         Inventory_Book tonkho1 = db.Inventory_Book.OrderByDescending(m => m.id).FirstOrDefault(m => m.Book_id == (int)sach.Book_id);
@@ -124,16 +129,15 @@ namespace PHSach.Controllers
                             if (tonkho1 == null)
                             {
                                 ViewBag.loi = "Không có tồn kho";
-                                //ModelState.AddModelError("", "Không có tồn kho");
                                 goto baoloi;
                             }
                             else
                             {
+                                //nếu tòn kho <= 0
                                 if (tonkho1.Quantity <= 0)
                                 {
                                     ViewBag.loi = "Sách đã hết trong kho";
                                     goto baoloi;
-                                    //ModelState.AddModelError("", "Sách đã hết hàng trong kho");
                                 }
                                 else
                                 {
@@ -142,23 +146,35 @@ namespace PHSach.Controllers
                                     {
                                         ViewBag.loi = "Số lượng sách không đủ để xuất";
                                         goto baoloi;
-                                        //ModelState.AddModelError("", "Vượt quá số lượng cho phép xuất");
                                     }
                                     else
                                     {
                                         Detail_Bill_Export ctpx = new Detail_Bill_Export();
-                                        ctpx.Bill_Export_id = (db.Bill_Export.Max(u => (int?)u.Bill_Export_id)!=null ? db.Bill_Export.Max(u => u.Bill_Export_id):0 ) + 1;// db.Bill_Export.Count() + 1;
+                                        ctpx.Bill_Export_id = (db.Bill_Export.Max(u => (int?)u.Bill_Export_id) != null ? db.Bill_Export.Max(u => u.Bill_Export_id) : 0) + 1;// db.Bill_Export.Count() + 1;
                                         ctpx.Book_id = Int32.Parse(chitiet["sach"].ToString());
                                         ctpx.Quantity = Int32.Parse(chitiet["soluong"].ToString());
                                         ctpx.Cost = double.Parse(db.Books.Find(ctpx.Book_id).Cost_Export.ToString());
                                         ctpx.Total = ctpx.Quantity * ctpx.Cost;
-                                        //((List<Int32>)Session["BookID"]).Add(ctpx.Book_id);
-                                        ((List<Detail_Bill_Export>)Session["ctphieuxuat"]).Add(ctpx);
+                                        //kiểm tra tổng tiền của phiếu có lớn hơn số nợ hay không
+                                        double checktien = 0;
+                                        foreach (var checktest in (List<Detail_Bill_Export>)Session["ctphieuxuat"])
+                                        {
+                                            checktien += checktest.Total;
+                                        }
+                                        checktien += ctpx.Total;
+                                        if (test2 == null || (test2 != null && test2.debt > 0 && test2.debt >= checktien) || test2.debt == 0)
+                                        {
+                                            ((List<Detail_Bill_Export>)Session["ctphieuxuat"]).Add(ctpx);
+                                        }
+                                        else
+                                        {
+                                            ViewBag.loi = "Vượt quá số nợ cho phép, mức nợ hiện tại là: " + test2.debt;
+                                            goto baoloi;
+                                        }
                                     }
                                 }
                             }
                         }
-                        //}
                         return RedirectToAction("ThemChiTietPhieuXuat");
                     }
                     else
