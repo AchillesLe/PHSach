@@ -77,7 +77,22 @@ namespace PHSach.Controllers
         [HttpGet]
         public ActionResult ThemChiTietPhieuXuat()
         {
-            ViewBag.sach = new SelectList(db.Books, "Book_id", "Book_name");
+            var lstb = db.Books;
+            List<Book> lstbtk = new List<Book>();
+            foreach (var item in lstb)
+            {
+                Inventory_Book tonkhosach = db.Inventory_Book.OrderByDescending(m => m.id).FirstOrDefault(m => m.Book_id == item.Book_id);
+                if (tonkhosach != null)
+                {
+                    if (tonkhosach.Quantity > 0)
+                    {
+                        Book bk = db.Books.FirstOrDefault(m => m.Book_id == tonkhosach.Book_id);
+                        lstbtk.Add(bk);
+                    }
+                }
+            }
+
+            ViewBag.sach = new SelectList(lstbtk, "Book_id", "Book_name");
             //var phieuxuat = (Bill_Export)TempData["PhieuXuat"];
             return View();
         }
