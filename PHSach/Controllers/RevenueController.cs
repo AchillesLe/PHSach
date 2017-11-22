@@ -38,7 +38,7 @@ namespace PHSach.Controllers
             double? total = 0;
             foreach (var item in find_id)
             {
-                total += (item.Cost_Export - item.Cost_Import) * item.quantity;
+                total += item.Cost_Export  * item.quantity;
             }
 
             return Json(total, JsonRequestBehavior.AllowGet);
